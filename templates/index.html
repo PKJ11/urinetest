@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urine Strip Color Analyzer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2em;
+            color: #4CAF50;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .upload-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .upload-container h2 {
+            margin: 0 0 20px;
+            color: #333;
+        }
+
+        .upload-container input[type="file"] {
+            display: block;
+            margin: 0 auto 20px;
+        }
+
+        .upload-container button {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .upload-container button:hover {
+            background-color: #45a049;
+        }
+
+        .result-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            overflow-x: auto;
+            display: flex;
+        }
+
+        .color-box {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            border-radius: 4px;
+        }
+
+        .result-container::-webkit-scrollbar {
+            height: 10px;
+        }
+
+        .result-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .result-container::-webkit-scrollbar-thumb {
+            background: #888;
+        }
+
+        .result-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .notebook {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+
+        .notebook h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .notebook pre {
+            margin-bottom: 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Urine Strip Color Analyzer</h1>
+    </header>
+    <main>
+        <div class="upload-container">
+            <h2>Upload Urine Strip Image</h2>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="file" id="image" name="image" accept="image/*" required>
+                <button type="submit">Upload</button>
+            </form>
+        </div>
+        <div class="result-container" id="colorContainer">
+        </div>
+        <div class="notebook">
+            <h3>Color JSON</h3>
+            <pre id="colorJson"></pre>
+        </div>
+    </main>
+    <script>
+        document.getElementById('uploadForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const formData = new FormData();
+            formData.append('image', document.getElementById('image').files[0]);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            const colors = result.colors;
+
+            const colorContainer = document.getElementById('colorContainer');
+            colorContainer.innerHTML = ''; // Clear previous colors
+
+            colors.forEach(color => {
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                colorBox.style.backgroundColor = `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+                colorContainer.appendChild(colorBox);
+            });
+
+            // Display colors in JSON format
+            const colorJson = document.getElementById('colorJson');
+            colorJson.textContent = JSON.stringify(colors, null, 2);
+        };
+    </script>
+</body>
+</html>
